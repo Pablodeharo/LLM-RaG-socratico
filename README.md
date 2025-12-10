@@ -1,169 +1,61 @@
-# 👽 RAG PDFBot - Modular Edition
+# Sócrates PDFBot – Conversational AI with RAG
 
-This project is a **production-style, modular rebuild** of [rag-bot-basic](https://github.com/Zlash65/rag-bot-basic) — a Retrieval-Augmented Generation (RAG) chatbot that lets you upload and chat with multiple PDFs.
-
-> **What’s different in this version?**
-> We’ve restructured everything to reflect how you'd build a scalable real-world RAG app. The UI and logic remain familiar, but the under-the-hood design is completely revamped.
-
----
-
-## 🔄 What Changed from `rag-bot-basic`
-
-| Area | Old Project | This Project |
-|------|-------------|--------------|
-| **Modularity** | All logic in a single file | ✅ Split into logical modules: `chat`, `sidebar`, `vectorstore`, `llm`, `pdf_handler`, etc. |
-| **PDF Parsing** | `PyPDF2` | ✅ Switched to `pypdf` (more modern & maintained) |
-| **Chain Logic** | `load_qa_chain` | ✅ Now uses `RetrievalChain` with `stuff_documents_chain` |
-| **Vector Store** | FAISS | ✅ Now uses ChromaDB (with inspection support) |
-| **Component Rendering** | Conditional rendering | ✅ All components rendered but disabled until their dependencies are met |
-| **Prompt Design** | Static QA prompt | ✅ Custom LangChain prompt template with system/human roles |
-| **UI Features** | Same core UI | ✅ Added live vectorstore inspector for developers (`developer_mode.py`) |
-| **Error Handling** | Minimal | ✅ Improved error handling and edge case feedback |
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)  
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.30+-green.svg)](https://streamlit.io/)  
+[![LangChain](https://img.shields.io/badge/LangChain-0.1+-orange.svg)](https://www.langchain.com/)  
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🧪 How It Looks
+## Project Overview
 
-### Demo
+**Sócrates PDFBot** is a conversational AI designed for **interactive knowledge exploration** using **Retrieval-Augmented Generation (RAG)**. It allows users to:
 
-![demo-gif](/assets/rag-bot-chroma.gif)
-
-### UI
-
-![ui-screenshot](/assets/screenshot-5.png)
+- Interact with a knowledge base built from the **complete works of Plato**.  
+- Upload their own PDFs for analysis and integration into the AI’s responses.  
+- Ask questions in natural Spanish and receive **context-aware, Socratic-style answers**.
 
 ---
 
-## 🏗️ Architecture
+## How It Works
 
-![architecture](/assets/rag-bot-chroma-architecture.png)
+1. **Corpus & Analysis**  
+   - Plato’s works were scraped and processed for semantic content.  
+   - NLP analysis extracts concepts, entities, and dialogue structure.  
+   - Results are stored in JSON and used as a knowledge base.
 
----
+2. **RAG Pipeline**  
+   - Documents are converted into embeddings using models like **HuggingFace**, **Groq**, or **Google Gemini**.  
+   - Embeddings are stored in **ChromaDB** for efficient retrieval.  
+   - User queries are answered by retrieving relevant documents and generating answers with an LLM.
 
-## 🚀 Features
-
-- 🔌 **Choose Groq or Gemini LLMs**
-- 📚 **Upload multiple PDFs**
-- 💬 **Chat interface powered by LangChain retrieval chains**
-- 🧠 **Contextual embeddings with HuggingFace or Google models**
-- 🧹 **Utilities panel: Reset, Clear, Undo**
-- 📥 **Downloadable chat history**
-- 🧪 **ChromaDB Developer Mode for inspecting embeddings**
-
----
-
-<details>
-  <summary>🛠️ Tech Stack</summary>
-
-- **UI**: Streamlit
-- **LLMs**: Groq & Gemini via LangChain
-- **Vector DB**: ChromaDB (was FAISS in old version)
-- **Embeddings**: HuggingFace & Google GenAI
-- **PDF Parsing**: PyPDF
-- **Orchestration**: LangChain Retrieval Chain
-
-</details>
+3. **Interactive Chat**  
+   - **Streamlit interface** allows chat-like interaction.  
+   - Supports multi-turn conversations with memory.  
+   - Allows downloading chat history and managing uploaded PDFs.
 
 ---
 
-## 📦 Installation
+## Supported Models
+
+| Provider     | Models                  | Notes                          |
+|-------------|-------------------------|--------------------------------|
+| Spanish LLM | eva-mistral-7b-spanish  | Local, Spanish responses       |
+| Groq        | llama-3.1-8b-instant    | API-based, experimental        |
+| Gemini      | gemini-2.0-flash-exp    | API-based, experimental        |
+
+> Only the Spanish LLM runs locally; Groq and Gemini are optional for experimentation.
+> **Tip:** To use Groq or Gemini, create a `.env` file in the root of the repository and add your API keys. The Spanish LLM runs locally and is ready out-of-the-box.
+
+---
+
+## Quick Start
 
 ```bash
-git clone https://github.com/Zlash65/rag-bot-chroma.git
+git clone https://github.com/Pablodeharo/rag-bot-chroma.git
 cd rag-bot-chroma
-
-python3 -m venv venv
-source venv/bin/activate
-
-pip3 install -r requirements.txt
-```
-
----
-
-## 🔐 API Keys Required
-
-- **Groq API key** from [console.groq.com](https://console.groq.com/)
-- **Google Gemini API key** from [ai.google.dev](https://ai.google.dev/)
-
-Create a `.env` file:
-
-```env
-GROQ_API_KEY=your-groq-key
-GOOGLE_API_KEY=your-google-key
-```
-
----
-
-## ▶️ How to Use
-
-```bash
+python -m venv .venv
+source .venv/bin/activate      # Linux/macOS
+.venv\Scripts\activate         # Windows
+pip install -r requirements.txt
 streamlit run app.py
-```
-
-1. Choose your **model provider** (Groq or Gemini)
-2. Pick a **model**
-3. Upload **PDFs**
-4. Click **Submit**
-5. Ask anything!
-
----
-
-<details>
-  <summary>📁 Project Structure</summary>
-
-```
-.
-├── app.py                        # Main app logic
-├── utils/
-│   ├── chat_handler.py          # Handles chat, input, history, downloads
-│   ├── sidebar_handler.py       # Handles sidebar config, upload, utilities
-│   ├── llm_handler.py           # LLM and chain setup
-│   ├── vectorstore_handler.py   # Embedding + Chroma vectorstore logic
-│   ├── pdf_handler.py           # PDF parsing and chunking
-│   ├── config.py                # API keys and model metadata
-│   └── developer_mode.py        # Inspector for vectorstore queries
-├── data/                        # Local vectorstore (Chroma) (not committed)
-├── assets/                      # GIFs and images for README
-├── .env                         # API keys (not committed)
-└── requirements.txt
-```
-</details>
-
----
-
-## 🧼 Tools Panel
-
-| Button | Function |
-|----------|--------|
-| 🔄 Reset | Clears session state and reruns app |
-| 🧹 Clear Chat | Clears chat + PDF submission |
-| ↩️ Undo | Removes last question/response |
-
----
-
-## 📦 Download Chat History
-
-Chat history is saved in the session state and can be exported as a CSV with the following columns:
-
-| Question | Answer | Model Provider | Model Name | PDF File | Timestamp |
-|----------|--------|----------------|------------|---------------------|-----------|
-| What is this PDF about? | This PDF explains... | Groq | llama3-70b-8192 | file1.pdf, file2.pdf | 2025-07-03 21:00:00 |
-
----
-
-## 🙏 Acknowledgements
-
-- [LangChain](https://www.langchain.com/)
-- [Streamlit](https://streamlit.io/)
-- [Groq](https://console.groq.com/)
-- [Google Gemini](https://ai.google.dev/)
-- [Chroma](https://docs.trychroma.com/)
-
----
-
-## 🧠 Looking for the simpler version?
-
-Check out the original repo here:  
-👉 [rag-bot-basic](https://github.com/Zlash65/rag-bot-basic)
-
-Great for understanding the fundamentals before jumping into modularization.
